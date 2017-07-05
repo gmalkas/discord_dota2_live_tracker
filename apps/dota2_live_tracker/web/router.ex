@@ -15,8 +15,6 @@ defmodule Dota2LiveTracker.Router do
 
   scope "/", Dota2LiveTracker do
     pipe_through :browser # Use the default browser stack
-
-    get "/", PageController, :index
   end
 
   # Other scopes may use custom stacks.

@@ -7,7 +7,7 @@ use Mix.Config
 
 # General application configuration
 config :dota2_live_tracker,
-  ecto_repos: [Dota2LiveTracker.Repo]
+  discord_token: System.get_env("DISCORD_BOT_TOKEN")
 
 # Configures the endpoint
 config :dota2_live_tracker, Dota2LiveTracker.Endpoint,
