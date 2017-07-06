@@ -10,8 +10,6 @@ defmodule Discord.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
-      # Starts a worker by calling: Discord.Worker.start_link(arg1, arg2, arg3)
-      # worker(Discord.Worker, [arg1, arg2, arg3]),
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html
