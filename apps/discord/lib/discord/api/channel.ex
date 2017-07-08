@@ -17,15 +17,6 @@ defmodule Discord.API.Channel do
     }
   end
 
-  defp decode_body(body) do
-    Poison.decode(body)
-  end
-
-  defp parse_response({:ok, response}) do
-    {:ok, response}
-  end
-  defp parse_response(_), do: {:error, "Could not parse response"}
-
   defp create_message_path(channel_id) do
     "#{@root_path}/#{channel_id}/messages"
   end
