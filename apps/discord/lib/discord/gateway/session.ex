@@ -1,0 +1,48 @@
+defmodule Discord.Gateway.Session do
+  use GenServer
+
+  defstruct [:id, :seq, :url]
+
+  alias __MODULE__
+
+  def start_link do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  end
+
+  def init(_args) do
+    table = :ets.new(:discord_gateway_sessions, [])
+    {:ok, table}
+  end
+
+  def store(token, session_id, seq) do
+    GenServer.call(__MODULE__, {:store, token, session_id, seq})
+  end
+
+  def update_seq(token, seq) do
+    GenServer.call(__MODULE__, {:update_seq, token, seq})
+  end
+
+  def last_seq_received(token) do
+    GenServer.call(__MODULE__, {:last_seq_received, token})
+  end
+
+  def handle_call({:store, token, session_id, seq}, _caller, table) do
+    :ets.insert(table, {token, %Session{id: session_id, seq: seq}})
+
+    {:reply, :ok, table}
+  end
+
+  def handle_call({:update_seq, token, seq}, _caller, table) do
+    [{_, %Session{} = session}] = :ets.lookup(table, token)
+    :ets.insert(table, {token, %Session{session | seq: seq}})
+
+    {:reply, :ok, table}
+  end
+
+  def handle_call({:last_seq_received, token}, _caller, table) do
+    case :ets.lookup(table, token) do
+      [%Session{seq: last_seq_received}] -> {:reply, last_seq_received, table}
+      [] -> {:reply, nil, table}
+    end
+  end
+end

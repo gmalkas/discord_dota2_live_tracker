@@ -10,6 +10,7 @@ defmodule Discord.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      worker(Discord.Gateway.Session, [], [])
     ]
 
     # See http://elixir-lang.org/docs/stable/elixir/Supervisor.html

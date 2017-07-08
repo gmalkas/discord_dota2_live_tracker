@@ -10,7 +10,7 @@ defmodule Discord.Gateway do
   @default_timeout :timer.seconds(60) # 1 minute may be too long?
 
   alias Discord.API
-  alias Discord.Gateway.{Protocol}
+  alias Discord.Gateway.{Event, Protocol, Session}
   alias Protocol.{Heartbeat, Hello, Identify}
   alias __MODULE__
 
@@ -41,16 +41,16 @@ defmodule Discord.Gateway do
     {:noreply, %Gateway{gateway | socket: socket}}
   end
 
-  def handle_cast(:wait_for_hello, %Gateway{} = state) do
+  def handle_cast(:wait_for_hello, state) do
     %Hello{heartbeat_interval: interval_in_ms} = next_message(state.socket, state.timeout)
-    start_hearbeat(state.socket, interval_in_ms)
+    start_hearbeat(state.token, state.socket, interval_in_ms)
     move_to(:identify)
 
     {:noreply, %Gateway{state | timeout: timeout_from_hearbeat_interval(interval_in_ms)}}
   end
 
-  def handle_cast(:identify, %Gateway{socket: socket} = state) do
-    send_message(socket, Identify.with_token(state.token))
+  def handle_cast(:identify, state) do
+    send_message(state.socket, Identify.with_token(state.token))
     move_to(:receive_loop)
 
     {:noreply, state}
@@ -58,6 +58,7 @@ defmodule Discord.Gateway do
 
   def handle_cast(:receive_loop, %Gateway{} = state) do
     next_message(state.socket, state.timeout)
+    |> process_message(state)
 
     move_to(:receive_loop)
 
@@ -95,15 +96,30 @@ defmodule Discord.Gateway do
     interval_in_ms * 2
   end
 
-  defp start_hearbeat(socket, interval_in_ms) do
+  defp start_hearbeat(token, socket, interval_in_ms) do
     Logger.info "Starting heartbeats every #{interval_in_ms}ms"
-    {:ok, _} = Task.start_link(fn -> beat(socket, interval_in_ms) end)
+    {:ok, _} = Task.start_link(fn -> beat(token, socket, interval_in_ms) end)
   end
 
-  defp beat(socket, interval_in_ms) do
-    send_message(socket, %Heartbeat{})
+  defp beat(token, socket, interval_in_ms) do
+    heartbeat = token
+                |> Session.last_seq_received
+                |> Heartbeat.new
+
+    send_message(socket, heartbeat)
     :timer.sleep(interval_in_ms)
 
-    beat(socket, interval_in_ms)
+    beat(token, socket, interval_in_ms)
+  end
+
+  defp process_message({%Event.Ready{session_id: session_id}, seq}, state) do
+    Session.store(state.token, session_id, seq)
+  end
+
+  defp process_message({_, seq}, state) do
+    Session.update_seq(state.token, seq)
+  end
+
+  defp process_message(_, _) do
   end
 end
