@@ -41,6 +41,7 @@ defmodule Discord.Mixfile do
       {:socket, "~> 0.3"},
       {:httpoison, "~> 0.12"},
       {:poison, "~> 2.0 or ~> 3.1"},
+      {:gen_stage,  "~> 0.12"}
     ]
   end
 end
