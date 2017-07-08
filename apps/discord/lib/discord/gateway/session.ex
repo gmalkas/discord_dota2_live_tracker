@@ -63,7 +63,7 @@ defmodule Discord.Gateway.Session do
 
   def handle_call({:exists, token}, _caller, table) do
     case :ets.lookup(table, token) do
-      [{_, %Session{} = session}] -> {:reply, true, table}
+      [{_, %Session{}}] -> {:reply, true, table}
       [] -> {:reply, false, table}
     end
   end
