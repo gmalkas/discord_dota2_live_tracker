@@ -11,7 +11,7 @@ defmodule Discord.Gateway do
 
   alias Discord.API
   alias Discord.Gateway.{Event, Protocol, Session}
-  alias Protocol.{Heartbeat, Hello, Identify, Resume}
+  alias Protocol.{Heartbeat, Hello, Identify, Reconnect, Resume}
   alias __MODULE__
 
   def start_link(token) do
@@ -129,6 +129,10 @@ defmodule Discord.Gateway do
     :timer.sleep(interval_in_ms)
 
     beat(token, socket, interval_in_ms)
+  end
+
+  defp process_message(%Reconnect{}, state) do
+    Socket.Web.close(state.socket)
   end
 
   defp process_message({%Event.Ready{session_id: session_id}, seq}, state) do
