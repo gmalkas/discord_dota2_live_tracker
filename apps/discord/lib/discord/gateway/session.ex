@@ -14,8 +14,8 @@ defmodule Discord.Gateway.Session do
     {:ok, table}
   end
 
-  def store(token, session_id, seq) do
-    GenServer.call(__MODULE__, {:store, token, session_id, seq})
+  def store(token, url, session_id, seq) do
+    GenServer.call(__MODULE__, {:store, token, url, session_id, seq})
   end
 
   def update_seq(token, seq) do
@@ -26,8 +26,8 @@ defmodule Discord.Gateway.Session do
     GenServer.call(__MODULE__, {:last_seq_received, token})
   end
 
-  def handle_call({:store, token, session_id, seq}, _caller, table) do
-    :ets.insert(table, {token, %Session{id: session_id, seq: seq}})
+  def handle_call({:store, token, url, session_id, seq}, _caller, table) do
+    :ets.insert(table, {token, %Session{id: session_id, seq: seq, url: url}})
 
     {:reply, :ok, table}
   end

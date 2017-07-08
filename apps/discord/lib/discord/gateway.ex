@@ -2,7 +2,7 @@ defmodule Discord.Gateway do
   use GenServer
   require Logger
 
-  defstruct [:timeout, :token, :socket]
+  defstruct [:timeout, :token, :url, :socket]
 
   @version 5
   @encoding :json
@@ -32,13 +32,12 @@ defmodule Discord.Gateway do
   end
 
   def handle_cast(:setup, %Gateway{token: token} = gateway) do
-    socket = token
-    |> fetch_gateway_uri
-    |> connect(token)
+    gateway_url = fetch_gateway_url(token)
+    socket = connect(token, gateway_url)
 
     move_to(:wait_for_hello)
 
-    {:noreply, %Gateway{gateway | socket: socket}}
+    {:noreply, %Gateway{gateway | socket: socket, url: gateway_url}}
   end
 
   def handle_cast(:wait_for_hello, state) do
@@ -65,12 +64,14 @@ defmodule Discord.Gateway do
     {:noreply, state}
   end
 
-  defp fetch_gateway_uri(token) do
+  defp fetch_gateway_url(token) do
     {:ok, websocket_url} = API.Gateway.url(token)
-    URI.parse(websocket_url)
+    websocket_url
   end
 
-  defp connect(uri, token) do
+  defp connect(token, url) do
+    uri = URI.parse(url)
+
     {:ok, socket} = Socket.Web.connect(
       uri.host,
       headers: API.headers(token),
@@ -113,7 +114,7 @@ defmodule Discord.Gateway do
   end
 
   defp process_message({%Event.Ready{session_id: session_id}, seq}, state) do
-    Session.store(state.token, session_id, seq)
+    Session.store(state.token, state.url, session_id, seq)
   end
 
   defp process_message({_, seq}, state) do
