@@ -10,6 +10,7 @@ defmodule Discord.Application do
 
     # Define workers and child supervisors to be supervised
     children = [
+      supervisor(Registry, [:unique, Discord.Gateway.Registry]),
       worker(Discord.Gateway.Session, [], [])
     ]
 
