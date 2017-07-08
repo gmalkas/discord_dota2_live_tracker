@@ -12,7 +12,10 @@ defmodule Discord.Gateway.Protocol do
   @hello 10
   @heartbeat_ack 11
 
-  alias Discord.Gateway.Protocol.{HeartbeatAck, Hello, Identify, InvalidSession, Reconnect}
+  alias Discord.Gateway.Event
+  alias Discord.Gateway.Protocol.{
+    Heartbeat, HeartbeatAck, Hello, Identify, InvalidSession, Reconnect
+  }
 
   def decode(data) when is_binary(data) do
     data
@@ -20,7 +23,8 @@ defmodule Discord.Gateway.Protocol do
     |> decode
   end
 
-  def decode(%{"op" => @dispatch}) do
+  def decode(%{"op" => @dispatch, "d" => data, "s" => seq, "t" => type}) do
+    {:ok, {decode_event(type, data), seq}}
   end
 
   def decode(%{"op" => @reconnect}), do: {:ok, %Reconnect{}}
@@ -37,6 +41,24 @@ defmodule Discord.Gateway.Protocol do
   def decode(_), do: {:error, :malformed_message}
 
   def encode(%Identify{} = identify) do
-    Poison.encode!(%{op: @identify, d: identify})
+    %{op: @identify, d: identify} |> encode
+  end
+
+  def encode(%Heartbeat{last_seq_received: seq}) do
+    %{op: @heartbeat, d: seq} |> encode
+  end
+
+  def encode(message), do: Poison.encode!(message)
+
+  defp decode_event("READY", %{"v" => v, "user" => user, "session_id" => session_id}) do
+    %Event.Ready{
+      protocol_version: v,
+      user: user,
+      session_id: session_id
+    }
+  end
+
+  defp decode_event(type, data) do
+    {type, data}
   end
 end
