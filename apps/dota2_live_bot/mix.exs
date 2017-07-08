@@ -37,6 +37,9 @@ defmodule Dota2LiveBot.Mixfile do
   #
   # Type "mix help deps" for more examples and options
   defp deps do
-    []
+    [
+      {:steam, in_umbrella: true},
+      {:discord, in_umbrella: true},
+    ]
   end
 end
