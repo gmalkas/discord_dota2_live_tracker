@@ -1,24 +1,39 @@
 defmodule Discord.API do
   @base_url "https://discordapp.com/api"
 
-  def get({:bot_token, token}, path, params \\ []) do
-    headers = default_headers() ++ bot_token_authentication_headers(token)
-
+  def get(token, path, params \\ []) do
     path
     |> endpoint
-    |> HTTPoison.get(headers, params: params)
+    |> HTTPoison.get(headers(token), params: params)
   end
 
-  def with_bot_token(token) do
-    {:bot_token, token}
+  def put(token, path, body \\ "", params \\ []) do
+    path
+    |> endpoint
+    |> HTTPoison.put(encode_body(body), headers(token), params: params)
+  end
+
+  def post(token, path, body \\ "", params \\ []) do
+    path
+    |> endpoint
+    |> HTTPoison.post(encode_body(body), headers(token), params: params)
+  end
+
+  defp encode_body(body), do: Poison.encode!(body)
+
+  def headers(token) do
+    default_headers() ++ token_authentication_headers(token)
   end
 
   defp default_headers do
-    [{"User-Agent", "DiscordBot (https://github.com/gmalkas/discord_dota2_live_tracker, 1.0)"}]
+    [
+      {"User-Agent", "DiscordBot (https://github.com/gmalkas/discord_dota2_live_tracker, 1.0)"},
+      {"Content-Type", "application/json"}
+    ]
   end
 
-  defp bot_token_authentication_headers(token) do
-    [{"Authorization", "Bot #{token}"}]
+  defp token_authentication_headers(token) do
+    [{"Authorization", token}]
   end
 
   defp endpoint(path) do

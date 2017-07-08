@@ -3,8 +3,8 @@ defmodule Discord.API.Gateway do
 
   alias Discord.API
 
-  def url(authentication) do
-    case API.get(authentication, @root_path) do
+  def url(token) do
+    case API.get(token, @root_path) do
       {:ok, %HTTPoison.Response{body: body}} -> body |> decode_body |> parse_response
       error -> error
     end
@@ -19,4 +19,3 @@ defmodule Discord.API.Gateway do
   end
   defp parse_response(_), do: {:error, "Could not parse response"}
 end
-

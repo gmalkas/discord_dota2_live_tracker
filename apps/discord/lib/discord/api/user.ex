@@ -6,7 +6,8 @@ defmodule Discord.API.User do
 
   def me(authentication) do
     case API.get(authentication, @me_path) do
-      {:ok, %HTTPoison.Response{body: body}} -> body |> decode_body |> parse_response
+      {:ok, %HTTPoison.Response{body: body}} ->
+        body |> decode_body |> parse_response
       error -> error
     end
   end
