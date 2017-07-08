@@ -1,7 +1,7 @@
 defmodule Discord.Gateway.Session do
   use GenServer
 
-  defstruct [:id, :seq, :url]
+  defstruct [:id, :token, :seq, :url]
 
   alias __MODULE__
 
@@ -26,8 +26,16 @@ defmodule Discord.Gateway.Session do
     GenServer.call(__MODULE__, {:last_seq_received, token})
   end
 
+  def find(token) do
+    GenServer.call(__MODULE__, {:find, token})
+  end
+
+  def exists?(token) do
+    GenServer.call(__MODULE__, {:exists, token})
+  end
+
   def handle_call({:store, token, url, session_id, seq}, _caller, table) do
-    :ets.insert(table, {token, %Session{id: session_id, seq: seq, url: url}})
+    :ets.insert(table, {token, %Session{id: session_id, token: token, seq: seq, url: url}})
 
     {:reply, :ok, table}
   end
