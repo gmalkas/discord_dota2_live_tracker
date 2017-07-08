@@ -49,8 +49,22 @@ defmodule Discord.Gateway.Session do
 
   def handle_call({:last_seq_received, token}, _caller, table) do
     case :ets.lookup(table, token) do
-      [%Session{seq: last_seq_received}] -> {:reply, last_seq_received, table}
+      [{_, %Session{seq: last_seq_received}}] -> {:reply, last_seq_received, table}
       [] -> {:reply, nil, table}
+    end
+  end
+
+  def handle_call({:find, token}, _caller, table) do
+    case :ets.lookup(table, token) do
+      [{_, %Session{} = session}] -> {:reply, {:ok, session}, table}
+      [] -> {:reply, {:error, :not_found}, table}
+    end
+  end
+
+  def handle_call({:exists, token}, _caller, table) do
+    case :ets.lookup(table, token) do
+      [{_, %Session{} = session}] -> {:reply, true, table}
+      [] -> {:reply, false, table}
     end
   end
 end

@@ -14,7 +14,7 @@ defmodule Discord.Gateway.Protocol do
 
   alias Discord.Gateway.Event
   alias Discord.Gateway.Protocol.{
-    Heartbeat, HeartbeatAck, Hello, Identify, InvalidSession, Reconnect
+    Heartbeat, HeartbeatAck, Hello, Identify, InvalidSession, Reconnect, Resume
   }
 
   def decode(data) when is_binary(data) do
@@ -46,6 +46,10 @@ defmodule Discord.Gateway.Protocol do
 
   def encode(%Heartbeat{last_seq_received: seq}) do
     %{op: @heartbeat, d: seq} |> encode
+  end
+
+  def encode(%Resume{} = resume) do
+    %{op: @resume, d: resume} |> encode
   end
 
   def encode(message), do: Poison.encode!(message)

@@ -11,7 +11,7 @@ defmodule Discord.Gateway do
 
   alias Discord.API
   alias Discord.Gateway.{Event, Protocol, Session}
-  alias Protocol.{Heartbeat, Hello, Identify}
+  alias Protocol.{Heartbeat, Hello, Identify, Resume}
   alias __MODULE__
 
   def start_link(token) do
@@ -32,7 +32,11 @@ defmodule Discord.Gateway do
   end
 
   def handle_cast(:setup, %Gateway{token: token} = gateway) do
-    gateway_url = fetch_gateway_url(token)
+    gateway_url = case Session.find(token) do
+      {:ok, %Session{url: url}} -> url
+      {:error, :not_found} -> fetch_gateway_url(token)
+    end
+
     socket = connect(token, gateway_url)
 
     move_to(:wait_for_hello)
@@ -43,7 +47,12 @@ defmodule Discord.Gateway do
   def handle_cast(:wait_for_hello, state) do
     %Hello{heartbeat_interval: interval_in_ms} = next_message(state.socket, state.timeout)
     start_hearbeat(state.token, state.socket, interval_in_ms)
-    move_to(:identify)
+
+    if Session.exists?(state.token) do
+      move_to(:resume)
+    else
+      move_to(:identify)
+    end
 
     {:noreply, %Gateway{state | timeout: timeout_from_hearbeat_interval(interval_in_ms)}}
   end
@@ -54,6 +63,15 @@ defmodule Discord.Gateway do
 
     {:noreply, state}
   end
+
+  def handle_cast(:resume, state) do
+    {:ok, session} = Session.find(state.token)
+    send_message(state.socket, Resume.from_session(session))
+    move_to(:receive_loop)
+
+    {:noreply, state}
+  end
+
 
   def handle_cast(:receive_loop, %Gateway{} = state) do
     next_message(state.socket, state.timeout)
