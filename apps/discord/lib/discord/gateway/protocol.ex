@@ -12,7 +12,6 @@ defmodule Discord.Gateway.Protocol do
   @hello 10
   @heartbeat_ack 11
 
-  alias Discord.Gateway.Event
   alias Discord.Gateway.Protocol.{
     Heartbeat, HeartbeatAck, Hello, Identify, InvalidSession, Reconnect, Resume
   }
@@ -53,14 +52,6 @@ defmodule Discord.Gateway.Protocol do
   end
 
   def encode(message), do: Poison.encode!(message)
-
-  defp decode_event("READY", %{"v" => v, "user" => user, "session_id" => session_id}) do
-    %Event.Ready{
-      protocol_version: v,
-      user: user,
-      session_id: session_id
-    }
-  end
 
   defp decode_event(type, data) do
     {type, data}

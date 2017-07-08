@@ -10,7 +10,7 @@ defmodule Discord.Gateway.Connection do
   @default_timeout :timer.seconds(60) # 1 minute may be too long?
 
   alias Discord.API
-  alias Discord.Gateway.{Broker, Event, Protocol, Session}
+  alias Discord.Gateway.{Broker, Protocol, Session}
   alias Protocol.{Heartbeat, HeartbeatAck, Hello, Identify, Reconnect, Resume}
   alias __MODULE__
 
@@ -143,7 +143,7 @@ defmodule Discord.Gateway.Connection do
     Socket.Web.close(state.socket)
   end
 
-  defp process_message({%Event.Ready{session_id: session_id} = event, seq}, state) do
+  defp process_message({{"READY", %{"session_id" => session_id}} = event, seq}, state) do
     Session.store(state.token, state.url, session_id, seq)
     Broker.dispatch(state.token, event)
   end
