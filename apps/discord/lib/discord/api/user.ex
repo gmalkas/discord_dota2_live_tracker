@@ -1,11 +1,20 @@
 defmodule Discord.API.User do
   @root_path "/users"
   @me_path "#{@root_path}/@me"
+  @guilds_path "#{@me_path}/guilds"
 
   alias Discord.API
 
-  def me(authentication) do
-    case API.get(authentication, @me_path) do
+  def me(token) do
+    case API.get(token, @me_path) do
+      {:ok, %HTTPoison.Response{body: body}} ->
+        body |> decode_body |> parse_response
+      error -> error
+    end
+  end
+
+  def guilds(token) do
+    case API.get(token, @guilds_path) do
       {:ok, %HTTPoison.Response{body: body}} ->
         body |> decode_body |> parse_response
       error -> error
