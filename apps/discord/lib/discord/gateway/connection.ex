@@ -11,7 +11,7 @@ defmodule Discord.Gateway.Connection do
 
   alias Discord.API
   alias Discord.Gateway.{Broker, Protocol, Session}
-  alias Protocol.{Heartbeat, HeartbeatAck, Hello, Identify, Reconnect, Resume}
+  alias Protocol.{Heartbeat, HeartbeatAck, Hello, Identify, InvalidSession, Reconnect, Resume}
   alias __MODULE__
 
   def start_link(token) do
@@ -77,7 +77,6 @@ defmodule Discord.Gateway.Connection do
     {:noreply, state}
   end
 
-
   def handle_cast(:receive_loop, %Connection{} = state) do
     next_message(state.socket, state.timeout)
     |> process_message(state)
@@ -137,6 +136,15 @@ defmodule Discord.Gateway.Connection do
   end
 
   defp process_message(%HeartbeatAck{}, _state) do
+  end
+
+  defp process_message(%InvalidSession{resumable: false}, state) do
+    Session.destroy(state.token)
+    Socket.Web.close(state.socket)
+  end
+
+  defp process_message(%InvalidSession{resumable: true}, _state) do
+    move_to(:resume)
   end
 
   defp process_message(%Reconnect{}, state) do

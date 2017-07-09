@@ -34,6 +34,10 @@ defmodule Discord.Gateway.Session do
     GenServer.call(__MODULE__, {:exists, token})
   end
 
+  def destroy(token) do
+    GenServer.call(__MODULE__, {:destroy, token})
+  end
+
   def handle_call({:store, token, url, session_id, seq}, _caller, table) do
     :ets.insert(table, {token, %Session{id: session_id, token: token, seq: seq, url: url}})
 
@@ -66,5 +70,10 @@ defmodule Discord.Gateway.Session do
       [{_, %Session{}}] -> {:reply, true, table}
       [] -> {:reply, false, table}
     end
+  end
+
+  def handle_call({:destroy, token}, _caller, table) do
+    :ets.delete(table, token)
+    {:reply, :ok, table}
   end
 end
