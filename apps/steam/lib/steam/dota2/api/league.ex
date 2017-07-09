@@ -29,10 +29,9 @@ defmodule Steam.Dota2.API.League do
 
   def build_game(game) do
     %Game{
-      id: game["league_game_id"],
+      id: game["match_id"],
       number: game["game_number"],
       league_id: game["league_id"],
-      match_id: game["match_id"],
       dire_series_wins: game["dire_series_wins"],
       radiant_series_wins: game["radiant_series_wins"],
       scoreboard: game["scoreboard"],
