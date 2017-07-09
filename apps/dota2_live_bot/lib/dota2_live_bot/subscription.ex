@@ -18,13 +18,13 @@ defmodule Dota2LiveBot.Subscription do
   end
 
   def handle_call({:subscribe, channel_id, game_id}, _from, subscriptions) do
-    new_subs = Map.update(subscriptions, channel_id, MapSet.new, &(MapSet.put(&1, game_id)))
+    new_subs = Map.update(subscriptions, game_id, MapSet.new |> MapSet.put(channel_id), &(MapSet.put(&1, channel_id)))
 
     {:reply, :ok, new_subs}
   end
 
   def handle_call({:unsubscribe, channel_id, game_id}, _from, subscriptions) do
-    new_subs = Map.update(subscriptions, channel_id, MapSet.new, &(MapSet.delete(&1, game_id)))
+    new_subs = Map.update(subscriptions, game_id, MapSet.new, &(MapSet.delete(&1, channel_id)))
 
     {:reply, :ok, new_subs}
   end

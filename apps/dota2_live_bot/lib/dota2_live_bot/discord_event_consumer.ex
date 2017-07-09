@@ -32,6 +32,11 @@ defmodule Dota2LiveBot.DiscordEventConsumer do
           {clean_game_id, _} -> Command.subscribe(token, channel_id, clean_game_id)
           _ -> Command.malformed_game_id(token, channel_id)
         end
+      "d2l:unsub:" <> game_id ->
+        case game_id |> String.trim |> Integer.parse do
+          {clean_game_id, _} -> Command.unsubscribe(token, channel_id, clean_game_id)
+          _ -> Command.malformed_game_id(token, channel_id)
+        end
       _ -> :ignore
     end
   end

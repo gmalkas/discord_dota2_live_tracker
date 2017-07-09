@@ -23,7 +23,9 @@ defmodule Dota2LiveBot.Command do
   __Live Dota2 games__
 
   """
-  @subscription_ack "You are now subscribed to the following game:\n\n"
+  @subscription_ack "You are now *subscribed* to the following game:\n\n"
+  @unsubscription_ack "You are now *unsubscribed* from the following game:\n\n"
+
   @game_not_found "Sorry, I could not find a live game with the given ID."
   @malformed_game_id "Sorry, I could not understand the game ID you've provided."
 
@@ -45,6 +47,17 @@ defmodule Dota2LiveBot.Command do
         Subscription.subscribe(channel_id, game_id)
 
         content = @subscription_ack <> DiscordGameFormatter.format(game)
+        Discord.API.Channel.create_message(token, channel_id, content)
+      _ -> Discord.API.Channel.create_message(token, channel_id, @game_not_found)
+    end
+  end
+
+  def unsubscribe(token, channel_id, game_id) do
+    case Cache.find_game(game_id) do
+      {:ok, %Game{} = game} ->
+        Subscription.unsubscribe(channel_id, game_id)
+
+        content = @unsubscription_ack <> DiscordGameFormatter.format(game)
         Discord.API.Channel.create_message(token, channel_id, content)
       _ -> Discord.API.Channel.create_message(token, channel_id, @game_not_found)
     end
