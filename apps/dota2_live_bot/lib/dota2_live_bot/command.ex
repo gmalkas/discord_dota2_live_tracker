@@ -1,19 +1,23 @@
 defmodule Dota2LiveBot.Command do
   @greeting "Hello! I am live and ready to serve you :ok_hand:"
   @help """
-  *** Dota2 Live Match Tracker ***
-  This Bot allows you to get regular updates on ongoing competitive Dota2 games.
+  I provide you with regular updates of ongoing competitive Dota2 games.
   By subscribing to a game, you will receive the state of the game every 5
-  minutes.
+  minutes until the game is over or you unsubscribe.
 
-  Available commands:
-  ------------------
+  __Available commands__
 
-    __d2l:help__:           prints this help message
-    __d2l:list__:           lists currently live games
-    __d2l:sub:$game_id__:   subscribe to the given game
-    __d2l:unsub:$game_id__: unsubscribe from the given game
-  ********************************
+    **d2l:list**
+        lists currently live games
+
+    **d2l:sub:$game_id**
+        subscribe to the given game
+
+    **d2l:unsub:$game_id**
+        unsubscribe from the given game
+
+    **d2l:help**
+        prints this help message
   """
 
   def greeting(token, channel_id) do
