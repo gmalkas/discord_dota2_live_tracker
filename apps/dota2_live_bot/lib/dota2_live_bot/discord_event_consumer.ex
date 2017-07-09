@@ -26,6 +26,7 @@ defmodule Dota2LiveBot.DiscordEventConsumer do
   defp handle_event({"MESSAGE_CREATE", %{"channel_id" => channel_id, "content" => content}}, token) do
     case content do
       "d2l:help" -> Command.help(token, channel_id)
+      "d2l:live" -> Command.live(token, channel_id)
       _ -> :ignore
     end
   end
