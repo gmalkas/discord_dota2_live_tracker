@@ -1,9 +1,7 @@
 defmodule Dota2LiveBot.DiscordEventConsumer do
   use GenStage
 
-  require Logger
-
-  @greeting "Hello! I am live and ready to serve you :ok_hand:"
+  alias Dota2LiveBot.Command
 
   def start_link(token) do
     GenStage.start_link(__MODULE__, token, [])
@@ -22,11 +20,14 @@ defmodule Dota2LiveBot.DiscordEventConsumer do
   end
 
   defp handle_event({"GUILD_CREATE", %{"id" => channel_id}}, token) do
-    Discord.API.Channel.create_message(token, channel_id, @greeting)
+    Command.greeting(token, channel_id)
   end
 
-  defp handle_event({"MESSAGE_CREATE", %{"id" => channel_id}}, token) do
-    # Magic happens here
+  defp handle_event({"MESSAGE_CREATE", %{"id" => channel_id, "content" => content}}, token) do
+    case content do
+      "d2l:help" -> Command.help(token, channel_id)
+      _ -> :ignore
+    end
   end
 
   defp handle_event({_type, _data}, _token) do
