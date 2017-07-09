@@ -28,6 +28,7 @@ defmodule Dota2LiveBot.Command do
 
   @game_not_found "Sorry, I could not find a live game with the given ID."
   @malformed_game_id "Sorry, I could not understand the game ID you've provided."
+  @unknown "I'm not sure what you mean. Try *d2l:help*."
 
   alias Steam.Dota2.Game
   alias Dota2LiveBot.Game.Cache
@@ -69,6 +70,10 @@ defmodule Dota2LiveBot.Command do
               |> format_live_game_list
 
     Discord.API.Channel.create_message(token, channel_id, content)
+  end
+
+  def unknown(token, channel_id) do
+    Discord.API.Channel.create_message(token, channel_id, @unknown)
   end
 
   def malformed_game_id(token, channel_id) do
