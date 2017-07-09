@@ -8,7 +8,7 @@ defmodule Dota2LiveBot.Application do
     steam_api_key = "STEAM_API_KEY" |> System.get_env
 
     children = [
-      #worker(Dota2LiveBot.Subscription, [discord_token]),
+      worker(Dota2LiveBot.Subscription, []),
       worker(Dota2LiveBot.Game.Cache, []),
       worker(Dota2LiveBot.Game.Tracker, [steam_api_key]),
       supervisor(Discord.Gateway, [discord_token]),
