@@ -19,7 +19,7 @@ defmodule Steam.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger, :httpoison, :poison]]
+    [extra_applications: [:logger, :httpoison, :poison, :timex]]
   end
 
   # Dependencies can be Hex packages:
@@ -39,6 +39,7 @@ defmodule Steam.Mixfile do
     [
       {:httpoison, "~> 0.12"},
       {:poison, "~> 2.0 or ~> 3.1"},
+      {:timex, "~> 3.1"}
     ]
   end
 end

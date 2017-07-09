@@ -19,7 +19,7 @@ defmodule Dota2LiveBot.Mixfile do
   # Type "mix help compile.app" for more information
   def application do
     # Specify extra applications you'll use from Erlang/Elixir
-    [extra_applications: [:logger],
+    [extra_applications: [:logger, :timex, :discord, :steam],
      mod: {Dota2LiveBot.Application, []}]
   end
 
@@ -40,6 +40,7 @@ defmodule Dota2LiveBot.Mixfile do
     [
       {:steam, in_umbrella: true},
       {:discord, in_umbrella: true},
+      {:timex, "~> 3.1"}
     ]
   end
 end
