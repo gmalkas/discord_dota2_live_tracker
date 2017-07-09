@@ -35,7 +35,6 @@ defmodule Discord.Gateway.Connection do
     {:via, Registry, {Discord.Gateway.Registry, {__MODULE__, token}}}
   end
 
-
   def handle_cast(:setup, %Connection{token: token} = state) do
     gateway_url = case Session.find(token) do
       {:ok, %Session{url: url}} -> url
