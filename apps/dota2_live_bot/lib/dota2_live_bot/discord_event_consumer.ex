@@ -27,6 +27,11 @@ defmodule Dota2LiveBot.DiscordEventConsumer do
     case content do
       "d2l:help" -> Command.help(token, channel_id)
       "d2l:live" -> Command.live(token, channel_id)
+      "d2l:sub:" <> game_id ->
+        case game_id |> String.trim |> Integer.parse do
+          {clean_game_id, _} -> Command.subscribe(token, channel_id, clean_game_id)
+          _ -> Command.malformed_game_id(token, channel_id)
+        end
       _ -> :ignore
     end
   end

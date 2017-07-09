@@ -23,9 +23,13 @@ defmodule Dota2LiveBot.Command do
   __Live Dota2 games__
 
   """
+  @subscription_ack "You are now subscribed to the following game:\n\n"
+  @game_not_found "Sorry, I could not find a live game with the given ID."
+  @malformed_game_id "Sorry, I could not understand the game ID you've provided."
 
   alias Steam.Dota2.Game
   alias Dota2LiveBot.Game.Cache
+  alias Dota2LiveBot.{DiscordGameFormatter, Subscription}
 
   def greeting(token, channel_id) do
     Discord.API.Channel.create_message(token, channel_id, @greeting)
@@ -35,23 +39,27 @@ defmodule Dota2LiveBot.Command do
     Discord.API.Channel.create_message(token, channel_id, @help)
   end
 
+  def subscribe(token, channel_id, game_id) do
+    case Cache.find_game(game_id) do
+      {:ok, %Game{} = game} ->
+        Subscription.subscribe(channel_id, game_id)
+
+        content = @subscription_ack <> DiscordGameFormatter.format(game)
+        Discord.API.Channel.create_message(token, channel_id, content)
+      _ -> Discord.API.Channel.create_message(token, channel_id, @game_not_found)
+    end
+  end
+
   def live(token, channel_id) do
     content = Cache.live_games
-              |> Enum.filter(&Game.professional?/1)
-              |> Enum.map(&format_game_description/1)
+              |> Enum.map(&DiscordGameFormatter.format/1)
               |> format_live_game_list
 
     Discord.API.Channel.create_message(token, channel_id, content)
   end
 
-  defp format_game_description(%Game{} = game) do
-    """
-    **#{Game.radiant_team_name(game)}** vs. **#{Game.dire_team_name(game)}**
-    #{game.series_type} (#{game.radiant_series_wins} - #{game.dire_series_wins}) - #{game.duration} - ##{game.id}
-
-    Kills #{game.radiant_kill_count} #{game.dire_kill_count}
-    Net Worth #{game.radiant_net_worth} #{game.dire_net_worth}
-    """
+  def malformed_game_id(token, channel_id) do
+    Discord.API.Channel.create_message(token, channel_id, @malformed_game_id)
   end
 
   defp format_live_game_list([]) do

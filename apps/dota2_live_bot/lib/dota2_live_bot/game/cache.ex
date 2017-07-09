@@ -30,6 +30,13 @@ defmodule Dota2LiveBot.Game.Cache do
     |> List.flatten
   end
 
+  def find_game(game_id) when is_integer(game_id) do
+    case :ets.match(@table_name, {{:game, game_id}, :"$1", :live}) do
+      [[game]] -> {:ok, game}
+      [] -> {:error, :not_found}
+    end
+  end
+
   def handle_call({:store, :game, items, state}, _from, table) do
     items
     |> Enum.each(fn item ->
