@@ -1,12 +1,14 @@
 defmodule Dota2LiveBot.Game.Cache do
   use GenServer
 
+  @table_name :dota2_live_bot_game_cache
+
   def start_link do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
   end
 
   def init(_args) do
-    table = :ets.new(:discord_gateway_sessions, [])
+    table = :ets.new(@table_name, [:named_table])
     {:ok, table}
   end
 
