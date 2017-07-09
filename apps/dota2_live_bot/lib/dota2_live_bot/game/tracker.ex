@@ -11,16 +11,17 @@ defmodule Dota2LiveBot.Game.Tracker do
   end
 
   def init(api_key) do
-    :timer.send_interval(:refresh_live_games, @game_refresh_interval)
     :timer.send_interval(:refresh_leagues, @league_refresh_interval)
+    :timer.send_interval(:refresh_live_games, @game_refresh_interval)
     GenServer.cast(__MODULE__, :refresh_leagues)
     GenServer.cast(__MODULE__, :refresh_live_games)
+
     {:ok, api_key}
   end
 
   def handle_cast(:refresh_live_games, api_key) do
-    {:ok, games} = Steam.Dota2.API.League.live_games(api_key)
-    Cache.store_games(games)
+    {:ok, live_games} = Steam.Dota2.API.League.live_games(api_key)
+    Cache.store_live_games(live_games)
 
     {:noreply, api_key}
   end

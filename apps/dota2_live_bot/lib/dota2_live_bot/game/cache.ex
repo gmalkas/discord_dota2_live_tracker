@@ -16,8 +16,27 @@ defmodule Dota2LiveBot.Game.Cache do
     GenServer.call(__MODULE__, {:store, :league, leagues})
   end
 
-  def store_games(games) do
-    GenServer.call(__MODULE__, {:store, :game, games})
+  def store_live_games(games) do
+    GenServer.call(__MODULE__, {:store, :game, games, :live})
+  end
+
+  def live_games do
+    :ets.match(@table_name, {{:game, :"_"}, :"$1", :live})
+    |> List.flatten
+  end
+
+  def leagues do
+    :ets.match(@table_name, {{:league, :"_"}, :"$1"})
+    |> List.flatten
+  end
+
+  def handle_call({:store, :game, items, state}, _from, table) do
+    items
+    |> Enum.each(fn item ->
+      :ets.insert(table, {{:game, item.id}, item, state})
+    end)
+
+    {:reply, :ok, table}
   end
 
   def handle_call({:store, type, items}, _from, table) do
