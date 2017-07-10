@@ -13,6 +13,7 @@ defmodule Dota2LiveBot.Application do
       worker(Dota2LiveBot.Game.Tracker, [steam_api_key]),
       supervisor(Discord.Gateway, [discord_token]),
       worker(Dota2LiveBot.DiscordEventConsumer, [discord_token]),
+      worker(Dota2LiveBot.Game.Announcer, [discord_token]),
     ]
 
     opts = [strategy: :one_for_one, name: Dota2LiveBot.Supervisor]
