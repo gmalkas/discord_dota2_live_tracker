@@ -31,5 +31,6 @@ API Key.
 You can then run the bot server:
 ```bash
 $ cd /path/to/bot
+/path/to/bot$ mix deps.get
 /path/to/bot$ DISCORD_BOT_TOKEN="Bot YOUR_TOKEN" STEAM_API_KEY="KEY" iex -S mix
 ```
