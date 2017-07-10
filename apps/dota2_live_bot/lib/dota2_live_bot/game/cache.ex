@@ -30,6 +30,10 @@ defmodule Dota2LiveBot.Game.Cache do
     |> List.flatten
   end
 
+  def remove_games(game_ids) do
+    GenServer.call(__MODULE__, {:remove, :game, game_ids})
+  end
+
   def find_game(game_id) when is_integer(game_id) do
     case :ets.match(@table_name, {{:game, game_id}, :"$1", :live}) do
       [[game]] -> {:ok, game}
@@ -50,6 +54,15 @@ defmodule Dota2LiveBot.Game.Cache do
     items
     |> Enum.each(fn item ->
       :ets.insert(table, {{type, item.id}, item})
+    end)
+
+    {:reply, :ok, table}
+  end
+
+  def handle_call({:remove, type, ids}, _from, table) do
+    ids
+    |> Enum.each(fn id ->
+      :ets.delete(table, {type, id})
     end)
 
     {:reply, :ok, table}

@@ -46,6 +46,18 @@ defmodule Dota2LiveBot.Game.Tracker do
 
   defp refresh_live_games(api_key) do
     {:ok, live_games} = Steam.Dota2.API.League.live_games(api_key)
+
+    live_game_ids = live_games
+                    |> Enum.map(&(&1.id))
+                    |> MapSet.new
+
+    cached_game_ids = Cache.live_games
+                      |> Enum.map(&(&1.id))
+                      |> MapSet.new
+
+    finished_game_ids = MapSet.difference(cached_game_ids, live_game_ids)
+
+    Cache.remove_games(finished_game_ids)
     Cache.store_live_games(live_games)
   end
 end
