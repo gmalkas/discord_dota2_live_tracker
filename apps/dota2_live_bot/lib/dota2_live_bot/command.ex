@@ -66,6 +66,7 @@ defmodule Dota2LiveBot.Command do
 
   def live(token, channel_id) do
     content = Cache.live_games
+              |> Enum.filter(&Game.professional?/1)
               |> Enum.map(&DiscordGameFormatter.format/1)
               |> format_live_game_list
 
