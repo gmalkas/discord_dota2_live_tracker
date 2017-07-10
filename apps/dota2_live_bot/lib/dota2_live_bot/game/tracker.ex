@@ -20,16 +20,32 @@ defmodule Dota2LiveBot.Game.Tracker do
   end
 
   def handle_cast(:refresh_live_games, api_key) do
-    {:ok, live_games} = Steam.Dota2.API.League.live_games(api_key)
-    Cache.store_live_games(live_games)
-
+    refresh_live_games(api_key)
     {:noreply, api_key}
   end
 
   def handle_cast(:refresh_leagues, api_key) do
+    refresh_leagues(api_key)
+    {:noreply, api_key}
+  end
+
+  def handle_info(:refresh_live_games, api_key) do
+    refresh_live_games(api_key)
+    {:noreply, api_key}
+  end
+
+  def handle_info(:refresh_leagues, api_key) do
+    refresh_leagues(api_key)
+    {:noreply, api_key}
+  end
+
+  defp refresh_leagues(api_key) do
     {:ok, leagues} = Steam.Dota2.API.League.all(api_key)
     Cache.store_leagues(leagues)
+  end
 
-    {:noreply, api_key}
+  defp refresh_live_games(api_key) do
+    {:ok, live_games} = Steam.Dota2.API.League.live_games(api_key)
+    Cache.store_live_games(live_games)
   end
 end
