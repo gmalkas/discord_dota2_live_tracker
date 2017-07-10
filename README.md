@@ -10,17 +10,26 @@ https://discordapp.com/oauth2/authorize?client_id=331909791024939008&scope=bot&p
 
 ## Available Commands
 
-### Follow league
+    **d2l:list**
+        lists currently live games
 
-### Follow game
+    **d2l:sub:$game_id**
+        subscribe to the given game
+
+    **d2l:unsub:$game_id**
+        unsubscribe from the given game
+
+    **d2l:help**
+        prints this help message
 
 ## Running locally
 If you want to run a version of the bot on your own server, you will need to
 install Erlang 20.0 and Elixir 1.4.5 then create a Discord application with a
-Bot user to receive a client ID and Bot Token.
+Bot user to receive a client ID and Bot Token. You will also need a Steam
+API Key.
 
 You can then run the bot server:
 ```bash
 $ cd /path/to/bot
-/path/to/bot$ DISCORD_BOT_TOKEN="Bot YOUR_TOKEN" ./script/start.sh
+/path/to/bot$ DISCORD_BOT_TOKEN="Bot YOUR_TOKEN" STEAM_API_KEY="KEY" iex -S mix
 ```
