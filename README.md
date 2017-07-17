@@ -3,6 +3,10 @@
 The Dota2 Live Tracker Discord Bot allows Discord users to receive live updates
 from [ongoing competitive Dota2 games](http://www.trackdota.com/).
 
+<p align="center">
+<img src="https://raw.githubusercontent.com/gmalkas/discord_dota2_live_tracker/master/docs/discord_bot.gif" />
+</p>
+
 ## Installation
 
 To add this Bot to your Guild/Server, use the following link:
